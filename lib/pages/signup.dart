@@ -13,11 +13,9 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   String? name, mail, password;
-  TextEditingController fullname_editor_controller =
-      TextEditingController();
+  TextEditingController fullname_editor_controller = TextEditingController();
   TextEditingController email_editor_controller = TextEditingController();
-  TextEditingController password_editor_controller =
-      TextEditingController();
+  TextEditingController password_editor_controller = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
   @override
@@ -64,19 +62,20 @@ class _SignUpState extends State<SignUp> {
                           email_editor_controller,
                           password_editor_controller),
                       InkWell(
-                          onTap: () {
-                            if (_formkey.currentState!.validate()) {
-                              setState(() {
-                                mail = email_editor_controller.text;
-                                name = fullname_editor_controller.text;
-                                password = password_editor_controller.text;
-                              });
-                            }
-                            Registration()
-                                .registration(context, password, name, mail);
-                          },
-                          child: CustomButton(
-                              screen: screen, button_text: "SIGN UP")),
+                        onTap: () {
+                          if (_formkey.currentState!.validate()) {
+                            setState(() {
+                              mail = email_editor_controller.text;
+                              name = fullname_editor_controller.text;
+                              password = password_editor_controller.text;
+                            },);
+                          }
+                          Registration()
+                              .registration(context, password, name, mail);
+                        },
+                        child: CustomButton(
+                            screen: screen, button_text: "SIGN UP"),
+                      ),
                       const SizedBox(
                         height: 30,
                       ),
@@ -90,5 +89,13 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    email_editor_controller;
+    fullname_editor_controller;
+    password_editor_controller;
+    super.dispose();
   }
 }

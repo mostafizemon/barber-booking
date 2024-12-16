@@ -18,25 +18,25 @@ class _HomeState extends State<Home> {
     setState(() {
     });
   }
-
   getontheload() async{
     await getdatafromsharedpreferences();
     setState(() {
     });
   }
-
   @override
   void initState() {
     getontheload();
     super.initState();
   }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Container(
-          margin: const EdgeInsets.only(left: 12.0, right: 12.0),
+          margin: const EdgeInsets.only(left: 12.0, right: 12.0,top: 10.00),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

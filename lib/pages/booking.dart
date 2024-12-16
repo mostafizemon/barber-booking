@@ -1,17 +1,55 @@
-import 'package:barber_booking/pages/home.dart';
-import 'package:barber_booking/widget/bookingdateandtime.dart';
+import 'package:barber_booking/services/database.dart';
 import 'package:flutter/material.dart';
 
-class Booking extends StatefulWidget {
-  String servicename;
+import '../services/shared_preference.dart';
+import '../widget/bookingdateandtime.dart';
+import 'home.dart';
 
-  Booking({super.key, required this.servicename});
+class Booking extends StatefulWidget {
+  final String servicename;
+
+  const Booking({super.key, required this.servicename});
 
   @override
   State<Booking> createState() => _BookingState();
 }
 
 class _BookingState extends State<Booking> {
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
+  String? name, image, email;
+
+  getdatafromsharedpreferences() async {
+    name = await SharedPreferenceHelper().getUserName();
+    image = await SharedPreferenceHelper().getUserImage();
+    email = await SharedPreferenceHelper().getUserEmail();
+    setState(() {});
+  }
+
+  getontheload() async {
+    await getdatafromsharedpreferences();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getontheload();
+    super.initState();
+  }
+
+  void _handleDateSelected(DateTime date) {
+    setState(() {
+      selectedDate = date;
+    });
+  }
+
+  void _handleTimeSelected(TimeOfDay time) {
+    setState(() {
+      selectedTime = time;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screensize = MediaQuery.of(context).size;
@@ -38,9 +76,7 @@ class _BookingState extends State<Booking> {
                   size: 35,
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               const Text(
                 "Let's the\njourney begin",
                 style: TextStyle(
@@ -48,17 +84,13 @@ class _BookingState extends State<Booking> {
                     fontWeight: FontWeight.bold,
                     fontSize: 40),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               Image.asset(
                 "assets/images/barbershopbanner.png",
                 width: screensize.width,
                 fit: BoxFit.cover,
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               Text(
                 widget.servicename,
                 style: const TextStyle(
@@ -66,28 +98,63 @@ class _BookingState extends State<Booking> {
                     fontWeight: FontWeight.bold,
                     fontSize: 30),
               ),
-              const SizedBox(
-                height: 20,
+              const SizedBox(height: 20),
+              Bookingdateandtime(
+                screensize: screensize,
+                context: context,
+                onDateSelected: _handleDateSelected,
+                onTimeSelected: _handleTimeSelected,
               ),
-              Bookingdateandtime(screensize: screensize, context: context),
-              const SizedBox(
-                height: 40,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                width: screensize.width,
-                decoration: BoxDecoration(
-                  color: Colors.deepOrange,
-                  borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 40),
+              InkWell(
+                onTap: () async {
+                  Map<String, dynamic> userBookingMap = {
+                    "Service": widget.servicename,
+                    "Date": selectedDate != null
+                        ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"
+                        : "Not selected",
+                    "Time": selectedTime != null
+                        ? selectedTime!.format(context)
+                        : "Not selected",
+                    "UserName": name,
+                    "Image": image,
+                    "Email": email
+                  };
+                  await DatabaseMethod()
+                      .addUserBooking(userBookingMap)
+                      .then((value) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Service has benn Booked Successfully!!!",
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                    );
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Home(),
+                        ),
+                        (Route<dynamic> route) => false);
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  width: screensize.width,
+                  decoration: BoxDecoration(
+                    color: Colors.deepOrange,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(
+                      child: Text(
+                    "Book Now",
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  )),
                 ),
-                child: const Center(
-                    child: Text(
-                  "Book Now",
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),),
               ),
             ],
           ),
